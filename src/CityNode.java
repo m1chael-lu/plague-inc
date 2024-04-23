@@ -3,6 +3,9 @@ public class CityNode {
     int population;
     double latitude;
     double longitude;
+
+    float proximityTransmissionConstant; // Will be determined by
+
     public CityNode(
             String cityName,
             int population,

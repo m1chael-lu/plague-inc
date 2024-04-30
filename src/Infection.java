@@ -1,3 +1,5 @@
+package src;
+
 public class Infection {
     String infectionName;
     int reach;

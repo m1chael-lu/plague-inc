@@ -1,3 +1,5 @@
+package src;
+
 public class TransmissionEdge {
     CityNode start;
     CityNode end;

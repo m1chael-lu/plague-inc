@@ -1,6 +1,10 @@
+package src;
+
 public class CityNode {
     String cityName;
     int population;
+    double landArea;
+    double populationDensity;
     double latitude;
     double longitude;
 
@@ -9,6 +13,8 @@ public class CityNode {
     public CityNode(
             String cityName,
             int population,
+            double landArea,
+            double populationDensity,
             double latitude,
             double longitude
     ) {

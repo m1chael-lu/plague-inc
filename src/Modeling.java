@@ -1,2 +1,4 @@
-public class Modeling {
+package src;
+
+class Modeling {
 }

@@ -3,30 +3,29 @@ package src;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.awt.geom.QuadCurve2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 
 
 @SuppressWarnings("serial")
 public class PlagueGame extends JPanel {
 
+    private final JLabel status; // current status text
     // Game constants
     public int BOARD_WIDTH;
     public int BOARD_HEIGHT;
-    private Modeling model;
-    private final JLabel status; // current status text
     BufferedImage topomap;
-
     List<CityNode> allCities;
     List<CityNode> originalCities;
     HashMap<String, Integer> originalPopulations;
     Graph graphObj;
+    private Modeling model;
 
 
     public PlagueGame(JLabel statusInit) {
@@ -38,7 +37,7 @@ public class PlagueGame extends JPanel {
         topomap1 = null;
         try {
             topomap1 = ImageIO.read(new File("src/mapJPEG.jpg"));
-        } catch ( IOException e) {
+        } catch (IOException e) {
             System.out.println("Exception caught");
         }
         topomap = topomap1;
@@ -62,23 +61,6 @@ public class PlagueGame extends JPanel {
         model = new Modeling(citiesModel, infection, "New York");
 
         status = statusInit; // initializes the status JLabel
-        /*
-         * Listens for mouseclicks. Updates the model, then updates the game
-         * board based off of the updated model.
-         */
-
-        addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                Point p = e.getPoint();
-                boolean isRight;
-                isRight = e.getButton() != MouseEvent.BUTTON1;
-                // updates the model given the coordinates of the mouseclick
-                // m.play(ms, p.x / 50, p.y / 50, isRight);
-                updateStatus(); // updates the status JLabel
-                repaint(); // repaints the game board
-            }
-        });
     }
 
     public void reset() {
@@ -206,7 +188,8 @@ public class PlagueGame extends JPanel {
 
                     JScrollPane scrollPane = new JScrollPane(textArea);
                     scrollPane.setPreferredSize(new Dimension(350, 150));
-                    JOptionPane.showMessageDialog(null, scrollPane, "Update", JOptionPane.INFORMATION_MESSAGE);
+                    JOptionPane.showMessageDialog(null, scrollPane, "Update",
+                            JOptionPane.INFORMATION_MESSAGE);
 
                     // Determine the infection type and get upgrade options
                     Infection currentInfection = model.getInfection();
@@ -214,11 +197,14 @@ public class PlagueGame extends JPanel {
                     String title = "Select an Upgrade";
 
                     if (currentInfection instanceof Virus) {
-                        upgradeOptions = new String[]{"Upgrade Mutation Rate", "Upgrade Host Dependency", "Upgrade Transmission Effectiveness"};
+                        upgradeOptions = new String[]{"Upgrade Mutation Rate", "Upgrade Host " +
+                                "Dependency", "Upgrade Transmission Effectiveness"};
                     } else if (currentInfection instanceof Bacteria) {
-                        upgradeOptions = new String[]{"Upgrade Reproduction Rate", "Upgrade Resistance", "Upgrade Environmental Tolerance"};
+                        upgradeOptions = new String[]{"Upgrade Reproduction Rate", "Upgrade " +
+                                "Resistance", "Upgrade Environmental Tolerance"};
                     } else if (currentInfection instanceof Fungus) {
-                        upgradeOptions = new String[]{"Upgrade Environmental Growth Rate", "Upgrade Spore Reproduction", "Upgrade Survivability"};
+                        upgradeOptions = new String[]{"Upgrade Environmental Growth Rate",
+                                "Upgrade Spore Reproduction", "Upgrade Survivability"};
                     } else {
                         return; // If the type is unknown, exit the method
                     }
@@ -264,9 +250,11 @@ public class PlagueGame extends JPanel {
 
     private void updateStatus() {
         if (model.gameOver && !model.userWon) {
-            status.setText("You lost! Your disease has been eradicated! Press reset to play again.");
+            status.setText("You lost! Your disease has been eradicated! Press reset to play " +
+                    "again.");
         } else if (model.gameOver && model.userWon) {
-            status.setText("You won! Your disease has reached critical mass! Press reset to play again.");
+            status.setText("You won! Your disease has reached critical mass! Press reset to " +
+                    "play again.");
         }
         repaint();
     }
@@ -275,20 +263,26 @@ public class PlagueGame extends JPanel {
     private void drawCity(Graphics2D g, CityNode city) {
         Point screenCoords = mapCoordinatesToScreen(city.latitude, city.longitude);
         int radius = (int) Math.sqrt(city.population) / 250;
-        int redValue = (int) (255 * (city.percentInfected + city.totalKilled/originalPopulations.get(city.cityName)));
+        int redValue = (int) (255 * (city.percentInfected + city.totalKilled / originalPopulations.
+                get(city.cityName)));
+        if (redValue > 255) {
+            redValue = 255;
+        }
+        if (redValue < 0) {
+            redValue = 0;
+        }
         Color color = new Color(redValue, 0, 0);
-
-        // Set color and draw the circle
         g.setColor(color);
-        g.fillOval(screenCoords.x - radius, screenCoords.y - radius, radius * 2, radius * 2);
+        g.fillOval(screenCoords.x - radius, screenCoords.y - radius, radius * 2,
+                radius * 2);
     }
 
     private void drawEdge(Graphics2D g, TransmissionEdge edge) {
         if (edge.flightTransmissionConstant > 0.506) {
             Point start = mapCoordinatesToScreen(edge.start.latitude, edge.start.longitude);
             Point control = mapCoordinatesToScreen(
-                    (edge.start.latitude + edge.end.latitude)/2 + Math.random() * 4 - 2,
-                    (edge.start.longitude + edge.end.longitude)/2 + Math.random() * 4 - 2
+                    (edge.start.latitude + edge.end.latitude) / 2 + Math.random() * 4 - 2,
+                    (edge.start.longitude + edge.end.longitude) / 2 + Math.random() * 4 - 2
             );
             Point end = mapCoordinatesToScreen(edge.end.latitude, edge.end.longitude);
             QuadCurve2D q = new QuadCurve2D.Float();
@@ -296,35 +290,20 @@ public class PlagueGame extends JPanel {
 
             Color semiTransparentWhite = new Color(255, 255, 255, 80);
             g.setColor(semiTransparentWhite);
-
-            // Set the stroke as dashed
             float[] dash = {2, 2};
-            BasicStroke bs = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, dash, 0);
+            BasicStroke bs = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL,
+                    0, dash, 0);
             g.setStroke(bs);
-
-            // Draw the curve
             g.draw(q);
         }
-
-//        if (edge.landTransmissionConstant > 0.506) {
-//            Point start = mapCoordinatesToScreen(edge.start.latitude, edge.start.longitude);
-//            Point end = mapCoordinatesToScreen(edge.end.latitude, edge.end.longitude);
-//            Color semiTransparentBrown = new Color(150, 75, 0, 15);
-//            g.setColor(semiTransparentBrown);
-//
-//            float lineWidth = 0.1f;
-//            BasicStroke stroke = new BasicStroke(lineWidth);
-//            g.setStroke(stroke);
-//
-//            g.draw(new Line2D.Float(start.x, start.y, end.x, end.y));
-//        }
     }
+
     private Point mapCoordinatesToScreen(double latitude, double longitude) {
-        // Example conversion formula, adjust according to your map's coordinate system
         int x = (int) ((longitude * -10.12) + 1297.6);
         int y = (int) ((latitude * -14.27) + 728.16);
         return new Point(x, y);
     }
+
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);

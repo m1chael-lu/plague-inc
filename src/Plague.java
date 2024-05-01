@@ -1,16 +1,19 @@
 package src;
 
-
-
 import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
 
-
+/**
+ * Implements the main setup and control flow for the Plague Simulator game, handling the
+ * initialization and interaction of various GUI components.
+ */
 public class Plague implements Runnable {
+
+    /**
+     * Sets up and displays the main game and instructional components.
+     */
     public void run() {
 
         // Top-level frame in which game components live

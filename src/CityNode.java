@@ -1,15 +1,20 @@
 package src;
 
+/**
+ * Represents a city node in a disease spread simulation model.
+ * Stores both raw data and derived information concerning a city's population,
+ * geographical area, and disease transmission characteristics.
+ */
 public class CityNode {
-    // webscraped information
+    static double populationTransmissionFactor = 0.0000075;
+    static double densityTransmissionFactor = 0.000075;
+    static double areaTransmissionFactor = 0.005;
     String cityName;
     int population;
     double landArea;
     double populationDensity;
     double latitude;
     double longitude;
-
-    // calculated values based on the model for the infection
     double proximityTransmissionConstant;
     double percentInfected;
     int currentlyInfected;
@@ -17,18 +22,15 @@ public class CityNode {
     double percentRecovered;
     int totalKilled;
 
-    // static parameters for the city model
-    static double populationTransmissionFactor = 0.0000075;
-    static double densityTransmissionFactor = 0.000075;
-    static double areaTransmissionFactor = 0.005;
-
     /**
+     * Constructs a CityNode with specified parameters, calculates population density,
+     * and initializes disease-related metrics.
      *
-     * @param cityName - the name of the city
-     * @param population - the 2022 estimate of the population of the city
-     * @param landArea - the total land area of the city as of 2020 (units: square miles)
-     * @param latitude - the city's latitude
-     * @param longitude - the city's longitude
+     * @param cityName   The name of the city.
+     * @param population The estimated population of the city for the year 2022.
+     * @param landArea   The total land area of the city in square miles as of 2020.
+     * @param latitude   The geographical latitude of the city.
+     * @param longitude  The geographical longitude of the city.
      */
     public CityNode(
             String cityName,
@@ -40,33 +42,35 @@ public class CityNode {
         this.cityName = cityName;
         this.population = population;
         this.landArea = landArea;
-        this.populationDensity = (double)population / landArea;
+        this.populationDensity = population / landArea;
         this.latitude = latitude;
         this.longitude = longitude;
         this.percentInfected = 0.0;
         currentlyInfected = 0;
         totalRecovered = 0;
         percentRecovered = 0.0;
-
-        // proximityTransmissionConstant is a measure of the transmission of the disease within the
-        // city. We employ a logistic model to compute this value, we used the formula explained in
-        // the write-up.
-
         recalculate();
-
-
     }
 
+    /**
+     * Recalculates the derived metrics related to disease transmission based on the current state
+     * of the city's population and disease progression.
+     */
     public void recalculate() {
-        this.percentRecovered = (double)totalRecovered / (double)population;
-        this.percentInfected = ((double)currentlyInfected) / ((double)this.population);
-        this.populationDensity = (double)population / landArea;
+        this.percentRecovered = (double) totalRecovered / (double) population;
+        this.percentInfected = ((double) currentlyInfected) / ((double) this.population);
+        this.populationDensity = (double) population / landArea;
         this.proximityTransmissionConstant = 1.0 / (1.0 +
                 Math.exp(-(populationTransmissionFactor * population * percentInfected
                         + densityTransmissionFactor * populationDensity
                         - areaTransmissionFactor * landArea)));
     }
 
+    /**
+     * Returns the name of the city.
+     *
+     * @return The name of the city.
+     */
     public String getName() {
         return cityName;
     }

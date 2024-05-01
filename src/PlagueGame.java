@@ -293,7 +293,7 @@ public class PlagueGame extends JPanel {
     private void drawCity(Graphics2D g, CityNode city) {
         Point screenCoords = mapCoordinatesToScreen(city.latitude, city.longitude);
         int radius = (int) Math.sqrt(city.population) / 250;
-        int redValue = (int) (150 * (city.percentInfected));
+        int redValue = (int) (255 * (city.percentInfected));
         if (city.cityName.equals("Chicago")) {
             System.out.println(redValue);
         }

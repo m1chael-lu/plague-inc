@@ -38,6 +38,8 @@ public class PlagueGame extends JPanel {
     BufferedImage topomap;
 
     List<CityNode> allCities;
+    List<CityNode> originalCities;
+    HashMap<String, Integer> originalPopulations;
     Graph graphObj;
 
     /**
@@ -65,6 +67,11 @@ public class PlagueGame extends JPanel {
 
         Scraper scraper = new Scraper();
         allCities = scraper.returnCitiesList();
+        List<CityNode> originalCities = scraper.returnCitiesList();
+        originalPopulations = new HashMap<>();
+        for (CityNode c : originalCities) {
+            originalPopulations.put(c.cityName, c.population);
+        }
         Graph citiesModel = new Graph(allCities);
         graphObj = citiesModel;
         Infection infection = new Virus("Ashish");
@@ -293,10 +300,7 @@ public class PlagueGame extends JPanel {
     private void drawCity(Graphics2D g, CityNode city) {
         Point screenCoords = mapCoordinatesToScreen(city.latitude, city.longitude);
         int radius = (int) Math.sqrt(city.population) / 250;
-        int redValue = (int) (255 * (city.percentInfected));
-        if (city.cityName.equals("Chicago")) {
-            System.out.println(redValue);
-        }
+        int redValue = (int) (255 * (city.percentInfected + city.totalKilled/originalPopulations.get(city.cityName)));
         Color color = new Color(redValue, 0, 0);
 
         // Set color and draw the circle

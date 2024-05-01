@@ -1,18 +1,22 @@
 package src;
 
 public class CityNode {
+    // webscraped information
     String cityName;
     int population;
     double landArea;
     double populationDensity;
     double latitude;
     double longitude;
+
+    // calculated values based on the model for the infection
     double proximityTransmissionConstant;
     double percentInfected;
     int currentlyInfected;
     int totalRecovered;
     double percentRecovered;
 
+    // static parameters for the city model
     static double populationTransmissionFactor = 0.0000075;
     static double densityTransmissionFactor = 0.000075;
     static double areaTransmissionFactor = 0.005;

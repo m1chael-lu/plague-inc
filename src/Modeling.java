@@ -7,6 +7,7 @@ class Modeling {
     Infection infection;
     int monthCount;
     Set<CityNode> infectedCities;
+    int medicinalUpgradeCounter = 0;
 
     public static int baseSocialInteractions = 12; // daily rate
     public static double populationGrowthRate = 0.0073; // monthlyRate
@@ -49,12 +50,19 @@ class Modeling {
         for (CityNode city : infectedCities) {
             System.out.println("- " + city.cityName);
         }
+        evaluateWinOrLoss();
+        medicinalUpgrade();
+        if (monthCount % 12 == 0) {
+            System.out.println("Time to upgrade: Select which upgrade you want:");
+        }
+        medicinalUpgradeCounter += 0.5;
     }
 
     private void simulateDeathsAndRecoveries(CityNode city) {
-        int totalKilled = (int)(Math.random() * city.currentlyInfected * infection.fatalityRate);
-        int totalRecovered = (int)(Math.random() * city.currentlyInfected * (1 - infection.fatalityRate));
-        totalRecovered = Math.min(totalRecovered, city.currentlyInfected - totalKilled);
+        int totalKilled = (int)(Math.random() * city.currentlyInfected * infection.getFatalityRate());
+        totalKilled = Math.max(Math.min(city.currentlyInfected, totalKilled), 0);
+        int totalRecovered = (int)(Math.random() * city.currentlyInfected * (1 - infection.getFatalityRate()));
+        totalRecovered = Math.max(Math.min(totalRecovered, city.currentlyInfected - totalKilled), 0);
         city.currentlyInfected -= (totalKilled + totalRecovered);
         city.totalRecovered += totalRecovered;
         city.population -= totalKilled;
@@ -64,8 +72,8 @@ class Modeling {
     private void simulateNewInfections(CityNode city) {
         int newInteractions = (int)(Math.random() * baseSocialInteractions * 30 * (1 +
                 city.proximityTransmissionConstant) * city.currentlyInfected);
-        int newSusceptible = (int)(Math.random() * newInteractions * infection.susceptibilityRate * (1 - city.percentRecovered));
-        int newInfected = (int)(Math.random() * newSusceptible * infection.infectionRate);
+        int newSusceptible = (int)(Math.random() * newInteractions * infection.getSusceptibilityRate() * (1 - city.percentRecovered));
+        int newInfected = (int)(Math.random() * newSusceptible * infection.getInfectionRate());
         newInfected = Math.min(newInfected, city.population - city.currentlyInfected - city.totalRecovered);
         city.currentlyInfected += newInfected;
         System.out.println(city.cityName + ": total infected after month " + monthCount + ": " + city.currentlyInfected);
@@ -98,6 +106,14 @@ class Modeling {
             }
         }
         infectedCities.addAll(newlyInfectedCities);
+    }
+
+    private void evaluateWinOrLoss() {
+
+    }
+
+    private void medicinalUpgrade() {
+
     }
 
 }

@@ -117,7 +117,7 @@ public class PlagueGame extends JPanel {
         // Get the initial city to infect from the user
         // Assuming Scraper and returnCitiesList method provides a List of city names
         Scraper scraper = new Scraper();
-        List<CityNode> allCities = scraper.returnCitiesList();
+        allCities = scraper.returnCitiesList();
         String[] cityNames = allCities.stream().map(CityNode::getName).toArray(String[]::new);
 
         String initialCity = (String) JOptionPane.showInputDialog(
@@ -156,7 +156,6 @@ public class PlagueGame extends JPanel {
         model = new Modeling(citiesModel, infection, initialCity);
 
         // Update UI elements
-        allCities = scraper.returnCitiesList();
         graphObj = citiesModel;
 
         status.setText("Start Playing!");
@@ -292,12 +291,12 @@ public class PlagueGame extends JPanel {
      */
 
     private void drawCity(Graphics2D g, CityNode city) {
-        // Convert latitude and longitude to x, y coordinates
         Point screenCoords = mapCoordinatesToScreen(city.latitude, city.longitude);
-        // Calculate radius based on population
         int radius = (int) Math.sqrt(city.population) / 250;
-        // Determine color based on % infected (0% white, 100% red)
-        int redValue = (int) (255 * (city.percentInfected));
+        int redValue = (int) (150 * (city.percentInfected));
+        if (city.cityName.equals("Chicago")) {
+            System.out.println(redValue);
+        }
         Color color = new Color(redValue, 0, 0);
 
         // Set color and draw the circle

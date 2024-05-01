@@ -65,6 +65,8 @@ public class Scraper {
                         replaceAll("\\D", "");
                 String longitudeString = correctCoordinatesSplit[1].
                         replaceAll("\\D", "");
+                latitudeString = latitudeString.substring(0, 2) + "." + latitudeString.substring(2);
+                longitudeString = longitudeString.substring(0, 2) + "." + longitudeString.substring(2);
                 double latitude = Double.parseDouble(latitudeString);
                 double longitude = Double.parseDouble(longitudeString);
                 CityNode currCity = new CityNode(cityName, population, landArea, populationDensity,
@@ -80,9 +82,4 @@ public class Scraper {
         return allCities;
     }
 
-    public static void main(String[] args) {
-        Scraper wikiScraper = new Scraper();
-        List<CityNode> allCities = wikiScraper.returnCitiesList();
-        System.out.println(allCities.size());
-    }
 }

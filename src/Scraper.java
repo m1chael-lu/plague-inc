@@ -62,8 +62,8 @@ public class Scraper {
                         replaceAll("\\D", "");
                 String longitudeString = correctCoordinatesSplit[1].
                         replaceAll("\\D", "");
-                latitudeString = latitudeString.substring(0, 2) + "." + latitudeString.substring(2);
-                longitudeString = longitudeString.substring(0, 2) + "." + longitudeString.substring(2);
+                latitudeString = latitudeString.substring(0, latitudeString.length() - 2) + "." + latitudeString.substring(latitudeString.length() - 2);
+                longitudeString = longitudeString.substring(0, longitudeString.length() - 2) + "." + longitudeString.substring(longitudeString.length() - 2);
                 double latitude = Double.parseDouble(latitudeString);
                 double longitude = Double.parseDouble(longitudeString);
                 CityNode currCity = new CityNode(cityName, population, landArea, latitude, longitude);

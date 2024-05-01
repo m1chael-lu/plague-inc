@@ -64,4 +64,7 @@ public class Graph {
         return true;
     }
 
+    public HashMap<CityNode, ArrayList<TransmissionEdge>> getAdjList() {
+        return adjList;
+    }
 }

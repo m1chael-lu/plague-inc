@@ -5,9 +5,13 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.geom.Line2D;
+import java.awt.geom.QuadCurve2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.*;
 import java.util.List;
 
 /**
@@ -33,6 +37,9 @@ public class PlagueGame extends JPanel {
     private final JLabel status; // current status text
     BufferedImage topomap;
 
+    List<CityNode> allCities;
+    Graph graphObj;
+
     /**
      * Initializes the game board.
      */
@@ -57,8 +64,9 @@ public class PlagueGame extends JPanel {
         setFocusable(true);
 
         Scraper scraper = new Scraper();
-        List<CityNode> allCities = scraper.returnCitiesList();
+        allCities = scraper.returnCitiesList();
         Graph citiesModel = new Graph(allCities);
+        graphObj = citiesModel;
         Infection infection = new Virus("Ashish");
         model = new Modeling(citiesModel, infection, "New York");
 
@@ -87,8 +95,9 @@ public class PlagueGame extends JPanel {
      */
     public void reset() {
         Scraper scraper = new Scraper();
-        List<CityNode> allCities = scraper.returnCitiesList();
+        allCities = scraper.returnCitiesList();
         Graph citiesModel = new Graph(allCities);
+        graphObj = citiesModel;
         Infection infection = new Virus("Ashish");
         model = new Modeling(citiesModel, infection, "New York");
         status.setText("Start Playing!");
@@ -97,13 +106,8 @@ public class PlagueGame extends JPanel {
     }
 
     public void simulateYear() {
-        for (int i = 0; i < 12; i++) {
-            boolean outcome = model.simulateOneMonth();
-            if (outcome) {
-                break;
-            }
-        }
-
+        boolean outcome = model.simulateOneMonth();
+        repaint();
     }
 
     /**
@@ -129,46 +133,90 @@ public class PlagueGame extends JPanel {
      *
      * @param g Graphics to print to the GUI
      */
+
+    private void drawCity(Graphics2D g, CityNode city) {
+        // Convert latitude and longitude to x, y coordinates
+        Point screenCoords = mapCoordinatesToScreen(city.latitude, city.longitude);
+        // Calculate radius based on population
+        int radius = (int) Math.sqrt(city.population) / 250;
+        // Determine color based on % infected (0% white, 100% red)
+        int redValue = (int) (255 * (city.percentInfected));
+        Color color = new Color(redValue, 0, 0);
+
+        // Set color and draw the circle
+        g.setColor(color);
+        g.fillOval(screenCoords.x - radius, screenCoords.y - radius, radius * 2, radius * 2);
+    }
+
+    private void drawEdge(Graphics2D g, TransmissionEdge edge) {
+        if (edge.flightTransmissionConstant > 0.506) {
+            Point start = mapCoordinatesToScreen(edge.start.latitude, edge.start.longitude);
+            Point control = mapCoordinatesToScreen(
+                    (edge.start.latitude + edge.end.latitude)/2 + Math.random() * 4 - 2,
+                    (edge.start.longitude + edge.end.longitude)/2 + Math.random() * 4 - 2
+            );
+            Point end = mapCoordinatesToScreen(edge.end.latitude, edge.end.longitude);
+            QuadCurve2D q = new QuadCurve2D.Float();
+            q.setCurve(start.x, start.y, control.x, control.y, end.x, end.y);
+
+            Color semiTransparentWhite = new Color(255, 255, 255, 80);
+            g.setColor(semiTransparentWhite);
+
+            // Set the stroke as dashed
+            float[] dash = {2, 2};
+            BasicStroke bs = new BasicStroke(1, BasicStroke.CAP_BUTT, BasicStroke.JOIN_BEVEL, 0, dash, 0);
+            g.setStroke(bs);
+
+            // Draw the curve
+            g.draw(q);
+        }
+
+//        if (edge.landTransmissionConstant > 0.506) {
+//            Point start = mapCoordinatesToScreen(edge.start.latitude, edge.start.longitude);
+//            Point end = mapCoordinatesToScreen(edge.end.latitude, edge.end.longitude);
+//            Color semiTransparentBrown = new Color(150, 75, 0, 15);
+//            g.setColor(semiTransparentBrown);
+//
+//            float lineWidth = 0.1f;
+//            BasicStroke stroke = new BasicStroke(lineWidth);
+//            g.setStroke(stroke);
+//
+//            g.draw(new Line2D.Float(start.x, start.y, end.x, end.y));
+//        }
+    }
+    private Point mapCoordinatesToScreen(double latitude, double longitude) {
+        // Example conversion formula, adjust according to your map's coordinate system
+        int x = (int) ((longitude * -10.12) + 1297.6);
+        int y = (int) ((latitude * -14.27) + 728.16);
+        return new Point(x, y);
+    }
     @Override
     public void paintComponent(Graphics g) {
         super.paintComponent(g);
-        g.drawImage(topomap, 0, 0, null);
-        g.setFont(new Font("TimesRoman", Font.PLAIN, 20));
+        Graphics2D g2 = (Graphics2D) g;
+        g2.drawImage(topomap, 0, 0, null);
+        g2.setFont(new Font("TimesRoman", Font.PLAIN, 20));
         // Draws board grid
 
         for (int i = 0; i < 10; i++) {
-            g.drawLine(0, i * 50, BOARD_WIDTH, i * 50);
-            g.drawLine(i * 50, 0, i * 50, BOARD_HEIGHT);
+            g2.drawLine(0, i * 50, BOARD_WIDTH, i * 50);
+            g2.drawLine(i * 50, 0, i * 50, BOARD_HEIGHT);
         }
 
-//        if (m.getStatus() == 1 || m.getStatus() == 2) {
-//            printBoard(ms, g);
-//            return;
-//        }
-//
-//        for (int i = 0; i < 10; i++) {
-//            for (int j = 0; j < 10; j++) {
-//                g.setColor(Color.LIGHT_GRAY);
-//                g.fillRect(i * 50 + 4, j * 50 + 4, 42, 42);
-//                if (ms[i][j].getIsClicked()) {
-//                    helpPrintBoard(g, i, j);
-//                } else if (ms[i][j].getIsFlagged()) {
-//                    g.setColor(Color.RED);
-//                    g.drawRect(i * 50 + 25, j * 50 + 10, 3, 30);
-//                    g.fillRect(i * 50 + 25, j * 50 + 10, 3, 30);
-//                    for (int f = 0; f < 16; f++) {
-//                        g.drawLine(i * 50 + 10, j * 50 + 18, i * 50 + 25, j * 50 + 10 + f);
-//                    }
-//                    g.drawRect(i * 50 + 10, j * 50 + 40, 30, 3);
-//                    g.fillRect(i * 50 + 10, j * 50 + 40, 30, 3);
-//                    g.setColor(Color.BLACK);
-//                } else {
-//                    g.setColor(Color.BLUE);
-//                    g.fillRect(i * 50 + 4, j * 50 + 4, 42, 42);
-//                    g.setColor(Color.BLACK);
-//                }
-//            }
-//        }
+
+        HashMap<CityNode, ArrayList<TransmissionEdge>> tempAdjList = graphObj.getAdjList();
+        HashSet<TransmissionEdge> seen = new HashSet<>();
+        for (CityNode city : graphObj.getAdjList().keySet()) {
+            for (TransmissionEdge e : tempAdjList.get(city)) {
+                if (!seen.contains(e)) {
+                    drawEdge(g2, e);
+                    seen.add(e);
+                }
+            }
+        }
+        for (CityNode city : allCities) {
+            drawCity(g2, city);
+        }
     }
 
     /**

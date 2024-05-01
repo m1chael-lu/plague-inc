@@ -8,9 +8,12 @@ public class Virus extends Infection {
 
     public Virus (String infectionName) {
         super(infectionName);
-        mutationRate = 0.3;
+        //mutationRate = 0.3;
+        //hostDependencyFactor = 0.5;
+        //transmissionEffectiveness = 0.3;
+        mutationRate = 1;
         hostDependencyFactor = 0.5;
-        transmissionEffectiveness = 0.3;
+        transmissionEffectiveness = 1;
         recalculate();
     }
 

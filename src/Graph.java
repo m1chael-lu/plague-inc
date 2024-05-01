@@ -55,13 +55,17 @@ public class Graph {
     }
 
     public boolean evaluateWin() {
+        int countCities = 0;
         for (Map.Entry<CityNode, ArrayList<TransmissionEdge>> cityEntry : adjList.entrySet()) {
             CityNode city = cityEntry.getKey();
-            if ((city.percentRecovered + city.percentInfected) < 0.8) {
-                return false;
+            if (city.currentlyInfected > 0) {
+                countCities++;
             }
         }
-        return true;
+        if (countCities > 200) {
+            return true;
+        }
+        return false;
     }
 
     public HashMap<CityNode, ArrayList<TransmissionEdge>> getAdjList() {

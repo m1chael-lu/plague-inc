@@ -52,4 +52,8 @@ public abstract class Infection {
         return "";
     }
 
+    public String getStats() {
+        return "";
+    }
+
 }

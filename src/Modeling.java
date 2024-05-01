@@ -13,8 +13,8 @@ class Modeling {
     boolean userWon = false;
     String medicineUpdate;
 
-    public static int baseSocialInteractions = 12; // daily rate
-    public static double populationGrowthRate = 0.0073; // monthlyRate
+    public static int baseSocialInteractions = 12;
+    public static double populationGrowthRate = 0.0073;
 
     int totalInfectedMonth;
     int totalKilledMonth;
@@ -79,14 +79,14 @@ class Modeling {
             System.out.println("Time to upgrade: Select which upgrade you want:");
 
         }
-        medicinalUpgradeCounter += 0.25;
+        medicinalUpgradeCounter += 0.1;
         return outcome;
     }
 
     private void simulateDeathsAndRecoveries(CityNode city) {
-        int totalKilled = (int)(Math.random() * city.currentlyInfected * infection.getFatalityRate());
+        int totalKilled = (int)(Math.random() * Math.random() * city.currentlyInfected * infection.getFatalityRate());
         totalKilled = Math.max(Math.min(city.currentlyInfected, totalKilled), 0);
-        int totalRecovered = (int)(Math.random() * city.currentlyInfected * (1 - infection.getFatalityRate()));
+        int totalRecovered = (int)(Math.random() * Math.random() * city.currentlyInfected * (1 - infection.getFatalityRate()));
         totalRecovered = Math.max(Math.min(totalRecovered, city.currentlyInfected - totalKilled), 0);
         city.currentlyInfected -= (totalKilled + totalRecovered);
         city.totalRecovered += totalRecovered;
@@ -140,12 +140,12 @@ class Modeling {
     }
 
     private boolean evaluateWinOrLoss() {
-        if (totalMedicinalUpgrades >= 8) {
-            System.out.println("Game over. You lost");
+        if (totalMedicinalUpgrades >= 16) {
+            System.out.println("Game over. You lost - medicinal upgrade");
             gameOver = true;
         }
-        if (((int)(totalRecoveredMonth * 0.1) > totalInfectedMonth + totalKilledMonth) || (totalInfectedMonth < 2000)) {
-            System.out.println("Game over. You lost");
+        if (((int)(totalRecoveredMonth * 0.05) > totalInfectedMonth + totalKilledMonth) || (totalInfectedMonth < 100)) {
+            System.out.println("Game over. You lost - multi conditions");
             gameOver = true;
         }
         if (unitedStates.evaluateWin()) {
@@ -185,7 +185,7 @@ class Modeling {
             update += "Important!!!!\n";
             update += medicineUpdate;
         }
-        update += "\n Your disease, " + infection.getInfectionName() + ", has infected " + infectedCities.size();
+        update += "\nYour disease, " + infection.getInfectionName() + ", has infected " + infectedCities.size();
         if (infectedCities.size() == 1) {
             update += " city:\n";
         } else {

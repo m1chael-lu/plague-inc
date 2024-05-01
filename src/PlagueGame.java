@@ -196,13 +196,6 @@ public class PlagueGame extends JPanel {
         Graphics2D g2 = (Graphics2D) g;
         g2.drawImage(topomap, 0, 0, null);
         g2.setFont(new Font("TimesRoman", Font.PLAIN, 20));
-        // Draws board grid
-
-        for (int i = 0; i < 10; i++) {
-            g2.drawLine(0, i * 50, BOARD_WIDTH, i * 50);
-            g2.drawLine(i * 50, 0, i * 50, BOARD_HEIGHT);
-        }
-
 
         HashMap<CityNode, ArrayList<TransmissionEdge>> tempAdjList = graphObj.getAdjList();
         HashSet<TransmissionEdge> seen = new HashSet<>();

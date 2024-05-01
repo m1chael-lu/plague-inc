@@ -15,31 +15,65 @@ public class Plague implements Runnable {
         final JFrame frame = new JFrame("Plague Simulator");
         frame.setLocation(450, 150);
 
-        // Frame for Instructions
-        JFrame instructionsPane = new JFrame("MineSweeper Instructions");
-        instructionsPane.setSize(475, 480);
-        instructionsPane.setLocation(466, 200);
+        JFrame instructionsFrame = new JFrame("Plague Simulator Instructions");
+        instructionsFrame.setSize(500, 500);
+        instructionsFrame.setLocation(450, 100);
+        instructionsFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JEditorPane instructionsText = new JEditorPane();
-        instructionsText.setEditable(false);
-        instructionsText.setContentType("text/html");
-        String text = "<h1 style=\"text-align:center\">MineSweeper Instructions</h1>\n" +
-                "<h2 style=\"text-align:center\">Selecting a Cell</h2>\n" +
-                "<p>Click a cell at random to start the game. The cells that have a mine number" +
-                " indicate the number of mines directly surrounding the cell (there are 8 total" +
-                " cells that surround each cell). Based on these values, open empty cells " +
-                "strategically to not hit a mine. If you hit a mine, you lose the game.</p>\n" +
-                "<h2 style=\"text-align:center\">Flagging a Cell</h2>\n<p> Flag a cell if you" +
-                " suspect that it is a mine. You can flag by right clicking on the cell.</p>\n" +
-                "<h2 style=\"text-align:center\">Winning the Game</h2>\n<p>You win the game by " +
-                "opening all the empty cells and not touching any of the mines. You do not need" +
-                " to have mine cells flagged in order to win. There are between 12 to 15 mines" +
-                " to find!</p>\n<h2 style=\"text-align:center\">Misc. Notes</h2>\n" +
-                "<p>You can't flag an opened cell. You can't open a flagged cell.</p>\n" +
-                "<h2 style=\"text-align:center\">Good luck!!</h2>\n" +
-                "\n";
-        instructionsText.setText(text);
-        instructionsPane.setContentPane(instructionsText);
+        JTextArea textArea = new JTextArea();
+        textArea.setEditable(false);
+        textArea.setLineWrap(true);
+        textArea.setWrapStyleWord(true);
+
+        // Example text with simple formatting for clarity
+        String instructionsText = "PLAGUE SIMULATOR INSTRUCTIONS\n\n"
+                + "STARTING THE SIMULATION\n"
+                + "-----------------------\n"
+                + "Select the type of infection (virus, bacteria, or fungus) and the name of the " +
+                "infection. "
+                + "Choose the initial city to infect. Click 'Start' to begin the simulation.\n\n"
+                + "MONITORING THE SIMULATION\n"
+                + "-------------------------\n"
+                + "Watch the progress of the infection spread across different cities. "
+                + "The simulator updates the infection status every month, showing how many " +
+                "people are infected in each city, along with more data points to track your " +
+                "progress in the game.\n\n"
+                + "UPGRADING THE INFECTION\n"
+                + "-----------------------\n"
+                + "At the end of each year, you have the option to upgrade your infection's " +
+                "capabilities. "
+                + "Upgrade types are dependent on the infection type you select!\n\n"
+                + "ENDING THE SIMULATION\n"
+                + "---------------------\n"
+                + "The simulation can be ended manually at any time or it will stop automatically" +
+                " once the infection "
+                + "reaches critical mass or medicine eliminates it.\n\n"
+                + "WINNING THE GAME\n"
+                + "----------------\n"
+                + "You win the game by successfully reaching a critical mass in the" +
+                " United States.\n\n"
+                + "MISCELLANEOUS NOTES\n"
+                + "-------------------\n"
+                + "The outcome of the game depends heavily on your strategic planning in choosing" +
+                " upgrades and managing "
+                + "the spread of the infection.\n\n"
+                + "Good luck!!\n";
+
+        textArea.setText(instructionsText);
+        JScrollPane scrollPane = new JScrollPane(textArea);
+
+        instructionsFrame.add(scrollPane);
+        instructionsFrame.setVisible(true);
+
+        JButton startGameButton = new JButton("Start Game");
+
+        // Adding Start Game button to instructions frame
+        JPanel buttonPanel = new JPanel();
+        buttonPanel.add(startGameButton);
+        instructionsFrame.add(buttonPanel, BorderLayout.SOUTH);
+
+        instructionsFrame.pack();
+        instructionsFrame.setVisible(true);
 
         // Status panel
         final JPanel status_panel = new JPanel();
@@ -83,7 +117,8 @@ public class Plague implements Runnable {
         instructionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                instructionsPane.setVisible(!instructionsPane.isVisible());
+                instructionsFrame.setVisible(!instructionsFrame.isVisible());
+                return;
             }
         });
         control_panel.add(instructionsButton);
@@ -91,9 +126,16 @@ public class Plague implements Runnable {
         // Put the frame on the screen
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setVisible(true);
+        frame.setVisible(false);
 
         // Start the game
-        simulator.reset();
+        startGameButton.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                instructionsFrame.dispose();
+                instructionsFrame.remove(buttonPanel);
+                frame.setVisible(true);
+                simulator.reset();
+            }
+        });
     }
 }

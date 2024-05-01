@@ -32,6 +32,23 @@ public class Bacteria extends Infection {
         recalculate();
     }
 
+    @Override
+    public String attackAttr(int attribute) {
+        String toReturn = "Medicine has been upgraded. Your bacteria's ";
+        if (attribute == 1) {
+            reproductionRate *= 0.9;
+            toReturn += "reproduction rate";
+        } else if (attribute == 2) {
+            resistance *= 0.9;
+            toReturn += "resistance";
+        } else {
+            environmentalTolerance *= 0.9;
+            toReturn += "environmental tolerance";
+        }
+        toReturn += " has decreased by a factor of 0.9";
+        return toReturn;
+    }
+
     private void recalculate() {
         double susceptibilityRate = Math.pow(environmentalTolerance * resistance, 0.5);
         double infectionRate = reproductionRate * (1 + environmentalTolerance);

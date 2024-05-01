@@ -6,6 +6,8 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 
 
 public class Plague implements Runnable {
@@ -14,7 +16,6 @@ public class Plague implements Runnable {
         // Top-level frame in which game components live
         final JFrame frame = new JFrame("Plague Simulator");
         frame.setLocation(450, 150);
-
         JFrame instructionsFrame = new JFrame("Plague Simulator Instructions");
         instructionsFrame.setSize(500, 500);
         instructionsFrame.setLocation(450, 100);
@@ -83,8 +84,35 @@ public class Plague implements Runnable {
 
         // Game board
         final PlagueGame simulator = new PlagueGame(status);
-        frame.add(simulator, BorderLayout.CENTER);
+        simulator.addMouseListener(new MouseListener() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                // Print the x, y coordinates of the mouse click
+                System.out.println("Mouse clicked at: (" + e.getX() + ", " + e.getY() + ")");
+            }
 
+            @Override
+            public void mousePressed(MouseEvent e) {
+                // Not used in this example
+            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                // Not used in this example
+            }
+
+            @Override
+            public void mouseEntered(MouseEvent e) {
+                // Not used in this example
+            }
+
+            @Override
+            public void mouseExited(MouseEvent e) {
+                // Not used in this example
+            }
+        });
+
+        frame.add(simulator);
         // Reset button
         final JPanel control_panel = new JPanel();
         frame.add(control_panel, BorderLayout.NORTH);

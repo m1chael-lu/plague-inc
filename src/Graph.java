@@ -1,15 +1,18 @@
 package src;
-
 import java.util.*;
-
+import javafx.application.Application;
 public class Graph {
     HashMap<CityNode, ArrayList<TransmissionEdge>> adjList;
     int nodeCount;
-
+    List<CityNode> cityStore;
+    GUI infectionMap;
     public Graph(List<CityNode> allCities) {
         nodeCount = allCities.size();
         adjList = new HashMap<>();
+        cityStore = allCities;
 
+        GUI.setCityList(allCities);
+        Application.launch(GUI.class, new String[]{});
         for (CityNode source : allCities) {
             ArrayList<TransmissionEdge> edgesFromSource = new ArrayList<>();
             for (CityNode target : allCities) {

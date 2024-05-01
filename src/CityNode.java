@@ -65,4 +65,20 @@ public class CityNode {
                         + densityTransmissionFactor * populationDensity
                         - areaTransmissionFactor * landArea)));
     }
+
+    public double retrieveLongitude() {
+        return this.longitude;
+    }
+
+    public double retrieveLatitude() {
+        return this.latitude;
+    }
+
+    public int retrievePopulation() {
+        return this.population;
+    }
+
+    public double retrievePercentInfected() {
+        return this.percentInfected;
+    }
 }

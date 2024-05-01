@@ -7,10 +7,17 @@ class Modeling {
     Infection infection;
     int monthCount;
     Set<CityNode> infectedCities;
-    int medicinalUpgradeCounter = 0;
+    double medicinalUpgradeCounter = 0;
+    int totalMedicinalUpgrades = 0;
+    boolean gameOver = false;
+    boolean userWon = false;
 
     public static int baseSocialInteractions = 12; // daily rate
     public static double populationGrowthRate = 0.0073; // monthlyRate
+
+    int totalInfectedMonth;
+    int totalKilledMonth;
+    int totalRecoveredMonth;
 
     public Modeling(Graph unitedStates, Infection infection, String srcCity) {
         this.unitedStates = unitedStates;
@@ -27,12 +34,23 @@ class Modeling {
             System.out.println("An error occurred. Please enter a valid city.");
         }
         infectedCities.add(source);
+        totalInfectedMonth = 0;
+        totalKilledMonth = 0;
+        totalRecoveredMonth = 0;
     }
 
 
-    public void simulateOneMonth() {
+    public boolean simulateOneMonth() {
+        if (gameOver) {
+            return true;
+        }
         System.out.println("Now simulating one month");
         monthCount++;
+
+        totalInfectedMonth = 0;
+        totalKilledMonth = 0;
+        totalRecoveredMonth = 0;
+
         for (CityNode city : infectedCities) {
             if (city.currentlyInfected == 0) {
                 city.currentlyInfected = city.currentlyInfected + 1;
@@ -50,12 +68,14 @@ class Modeling {
         for (CityNode city : infectedCities) {
             System.out.println("- " + city.cityName);
         }
-        evaluateWinOrLoss();
+        boolean outcome = evaluateWinOrLoss();
         medicinalUpgrade();
         if (monthCount % 12 == 0) {
             System.out.println("Time to upgrade: Select which upgrade you want:");
+
         }
-        medicinalUpgradeCounter += 0.5;
+        medicinalUpgradeCounter += 0.25;
+        return outcome;
     }
 
     private void simulateDeathsAndRecoveries(CityNode city) {
@@ -66,6 +86,8 @@ class Modeling {
         city.currentlyInfected -= (totalKilled + totalRecovered);
         city.totalRecovered += totalRecovered;
         city.population -= totalKilled;
+        totalKilledMonth += totalKilled;
+        totalRecoveredMonth += totalRecovered;
         System.out.println(city.cityName + ": From month " + (monthCount - 1) + ": " + totalKilled + " killed " + totalRecovered + " recovered");
     }
 
@@ -76,6 +98,7 @@ class Modeling {
         int newInfected = (int)(Math.random() * newSusceptible * infection.getInfectionRate());
         newInfected = Math.min(newInfected, city.population - city.currentlyInfected - city.totalRecovered);
         city.currentlyInfected += newInfected;
+        totalInfectedMonth += newInfected;
         System.out.println(city.cityName + ": total infected after month " + monthCount + ": " + city.currentlyInfected);
     }
 
@@ -108,12 +131,46 @@ class Modeling {
         infectedCities.addAll(newlyInfectedCities);
     }
 
-    private void evaluateWinOrLoss() {
+    private boolean evaluateWinOrLoss() {
+        if (totalMedicinalUpgrades >= 8) {
+            System.out.println("Game over. You lost");
+            gameOver = true;
+        }
+        if ((int)(totalRecoveredMonth * 0.1) > totalInfectedMonth + totalKilledMonth) {
+            System.out.println("Game over. You lost");
+            gameOver = true;
+        }
+        if (unitedStates.evaluateWin()) {
+            System.out.println("Game over. You won.");
+            userWon = true;
+            gameOver = true;
+        }
+        return gameOver;
 
     }
 
     private void medicinalUpgrade() {
+        boolean yesUpgrade = false;
+        for (int i = 0; i < (int)medicinalUpgradeCounter; i++) {
+            if (Math.random() > 0.9) {
+                yesUpgrade = true;
+            }
+        }
+        if (!yesUpgrade) {
+            return;
+        }
+        medicinalUpgradeCounter = 0;
+        totalMedicinalUpgrades += 1;
 
+        int optionToAttack = (int)(Math.random() * 3);
+        System.out.println("Medicinal upgrade option: " + optionToAttack);
+        if (optionToAttack == 1) {
+            infection.setSusceptibilityRate(infection.getSusceptibilityRate() * 0.9);
+        } else if (optionToAttack == 2) {
+            infection.setInfectionRate(infection.getInfectionRate() * 0.9);
+        } else {
+            infection.setFatalityRate(infection.getFatalityRate() * 0.9);
+        }
     }
 
 }

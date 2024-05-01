@@ -9,8 +9,8 @@ public class Fungus extends Infection {
     public Fungus (String infectionName) {
         super(infectionName);
         environmentalGrowthRate = 0.6;
-        sporeReproduction = 0.6;
-        survivability = 0.5;
+        sporeReproduction = 0.7;
+        survivability = 0.4;
         recalculate();
     }
 

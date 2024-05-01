@@ -33,7 +33,7 @@ public class Virus extends Infection {
     }
 
     private void recalculate() {
-        double susceptibilityRate = hostDependencyFactor * 0.5;
+        double susceptibilityRate = hostDependencyFactor * 0.6;
         double infectionRate = transmissionEffectiveness * mutationRate * 3;
         double fatalityRate = mutationRate * (transmissionEffectiveness - 0.1);
         setFatalityRate(fatalityRate);

@@ -53,4 +53,15 @@ public class Graph {
             }
         }
     }
+
+    public boolean evaluateWin() {
+        for (Map.Entry<CityNode, ArrayList<TransmissionEdge>> cityEntry : adjList.entrySet()) {
+            CityNode city = cityEntry.getKey();
+            if ((city.percentRecovered + city.percentInfected) < 0.8) {
+                return false;
+            }
+        }
+        return true;
+    }
+
 }

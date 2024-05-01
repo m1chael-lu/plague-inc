@@ -13,13 +13,23 @@ Here, we provide a user manual to showcase how the game operates.
 
 3. Then, the application opens. It will appear like the application below.
 
-4. You can customize the name, type of infection, and starting city for your new infection. Once you're done with that, your infection has been configured.
+![user image 1](public/usermanualimg1.png)
 
-5. Now, you can run start the game with ```Simulate Year```, which will pass over 12 months of simulation. At the end a year, a status report will be shown, like the image below.
+5. You can customize the name, type of infection, and starting city for your new infection. Once you're done with that, your infection has been configured.
 
-6. In addition, you will have an opportunity to evolve your infection by choosing an upgrade path. It looks something like the below (each infection type will have different evolution paths as well):
+![user image 2](public/usermanualimg2.png)
 
-7. Finally, when you win or lose the game, it will show in the status bar below: 
+7. Now, you can run start the game with ```Simulate Year```, which will pass over 12 months of simulation. At the end a year, a status report will be shown, like the image below.
+
+![user image 3](public/usermanualimg3.png)
+
+8. In addition, you will have an opportunity to evolve your infection by choosing an upgrade path. It looks something like the below (each infection type will have different evolution paths as well):
+
+![user image 4](public/usermanualimg4.png)
+
+9. Finally, when you win or lose the game, it will show in the status bar below: 
+
+![user image 5](public/usermanualimg5.png)
 
 ## Features
 - Web Scraping: To gather information on US cities, like the name, latitude, longitude, population, and popoulation density, we scrape through US cities in Wikipedia. We designed a standalone module called ``Scraper``` to retrieve this data. 

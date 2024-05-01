@@ -5,8 +5,6 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.awt.geom.Line2D;
 import java.awt.geom.QuadCurve2D;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -14,19 +12,7 @@ import java.io.IOException;
 import java.util.*;
 import java.util.List;
 
-/**
- * This class instantiates a MineSweeper object, which is the model for the
- * game.
- * As the user clicks the game board, the model is updated. Whenever the model
- * is updated, the game board repaints itself and updates its status JLabel to
- * reflect the current state of the model.
- * <p>
- * This game adheres to a Model-View-Controller design framework.
- * <p>
- * In a Model-View-Controller framework, GameBoard stores the model as a field
- * and acts as both the controller (with a MouseListener) and the view (with
- * its paintComponent method and the status JLabel).
- */
+
 @SuppressWarnings("serial")
 public class PlagueGame extends JPanel {
 
@@ -42,9 +28,7 @@ public class PlagueGame extends JPanel {
     HashMap<String, Integer> originalPopulations;
     Graph graphObj;
 
-    /**
-     * Initializes the game board.
-     */
+
     public PlagueGame(JLabel statusInit) {
 
         // creates border around the court area, JComponent method
@@ -97,9 +81,6 @@ public class PlagueGame extends JPanel {
         });
     }
 
-    /**
-     * (Re-)sets the game to its initial state. Tells user to start playing the game
-     */
     public void reset() {
         // Get the type of infection from the user
         String[] infectionTypes = {"Virus", "Bacteria", "Fungus"};
@@ -171,6 +152,10 @@ public class PlagueGame extends JPanel {
     }
 
     public void simulateYear() {
+        if (model.gameOver) {
+            SwingUtilities.invokeLater(this::updateStatus);
+            return;
+        }
         Thread simulationThread = new Thread(() -> {
             long startTime = System.currentTimeMillis();
             long interval = 500; // 500 milliseconds
@@ -178,8 +163,8 @@ public class PlagueGame extends JPanel {
             for (int i = 0; i < 12; i++) {
                 boolean outcome = model.simulateOneMonth();
                 if (outcome) {
-                    status.setText("Unfortunately you lost! Your plague has failed to reach " +
-                            "critical mass");
+                    SwingUtilities.invokeLater(this::updateStatus);
+                    return;
                 }
                 final int month = i + 1;
                 final int year = model.monthCount / 12;
@@ -209,93 +194,83 @@ public class PlagueGame extends JPanel {
                     }
                 }
             }
-            SwingUtilities.invokeLater(() -> {
-                String plagueStatus = model.provideUpdate();
-                JTextArea textArea = new JTextArea(plagueStatus);
-                textArea.setEditable(false);
-                textArea.setWrapStyleWord(true);
-                textArea.setLineWrap(true);
+            if (model.gameOver) {
+                SwingUtilities.invokeLater(this::updateStatus);
+            } else {
+                SwingUtilities.invokeLater(() -> {
+                    String plagueStatus = model.provideUpdate();
+                    JTextArea textArea = new JTextArea(plagueStatus);
+                    textArea.setEditable(false);
+                    textArea.setWrapStyleWord(true);
+                    textArea.setLineWrap(true);
 
-                JScrollPane scrollPane = new JScrollPane(textArea);
-                scrollPane.setPreferredSize(new Dimension(350, 150));
-                JOptionPane.showMessageDialog(null, scrollPane, "Update", JOptionPane.INFORMATION_MESSAGE);
+                    JScrollPane scrollPane = new JScrollPane(textArea);
+                    scrollPane.setPreferredSize(new Dimension(350, 150));
+                    JOptionPane.showMessageDialog(null, scrollPane, "Update", JOptionPane.INFORMATION_MESSAGE);
 
-                // Determine the infection type and get upgrade options
-                Infection currentInfection = model.getInfection();
-                String[] upgradeOptions;
-                String title = "Select an Upgrade";
+                    // Determine the infection type and get upgrade options
+                    Infection currentInfection = model.getInfection();
+                    String[] upgradeOptions;
+                    String title = "Select an Upgrade";
 
-                if (currentInfection instanceof Virus) {
-                    upgradeOptions = new String[]{"Upgrade Mutation Rate", "Upgrade Host Dependency", "Upgrade Transmission Effectiveness"};
-                } else if (currentInfection instanceof Bacteria) {
-                    upgradeOptions = new String[]{"Upgrade Reproduction Rate", "Upgrade Resistance", "Upgrade Environmental Tolerance"};
-                } else if (currentInfection instanceof Fungus) {
-                    upgradeOptions = new String[]{"Upgrade Environmental Growth Rate", "Upgrade Spore Reproduction", "Upgrade Survivability"};
-                } else {
-                    return; // If the type is unknown, exit the method
-                }
+                    if (currentInfection instanceof Virus) {
+                        upgradeOptions = new String[]{"Upgrade Mutation Rate", "Upgrade Host Dependency", "Upgrade Transmission Effectiveness"};
+                    } else if (currentInfection instanceof Bacteria) {
+                        upgradeOptions = new String[]{"Upgrade Reproduction Rate", "Upgrade Resistance", "Upgrade Environmental Tolerance"};
+                    } else if (currentInfection instanceof Fungus) {
+                        upgradeOptions = new String[]{"Upgrade Environmental Growth Rate", "Upgrade Spore Reproduction", "Upgrade Survivability"};
+                    } else {
+                        return; // If the type is unknown, exit the method
+                    }
 
-                String selectedUpgrade = (String) JOptionPane.showInputDialog(
-                        null,
-                        "Choose an upgrade for the year:",
-                        title,
-                        JOptionPane.QUESTION_MESSAGE,
-                        null,
-                        upgradeOptions,
-                        upgradeOptions[0]
-                );
+                    String selectedUpgrade = (String) JOptionPane.showInputDialog(
+                            null,
+                            "Choose an upgrade for the year:",
+                            title,
+                            JOptionPane.QUESTION_MESSAGE,
+                            null,
+                            upgradeOptions,
+                            upgradeOptions[0]
+                    );
 
-                // Check if user pressed cancel or closed the dialog
-                if (selectedUpgrade == null) return;
+                    // Check if user pressed cancel or closed the dialog
+                    if (selectedUpgrade == null) return;
 
-                // Apply the selected upgrade based on the type and choice
-                switch (selectedUpgrade) {
-                    case "Upgrade Mutation Rate":
-                    case "Upgrade Environmental Growth Rate":
-                    case "Upgrade Reproduction Rate":
-                        currentInfection.upgradeAttr1();
-                        break;
-                    case "Upgrade Host Dependency":
-                    case "Upgrade Resistance":
-                    case "Upgrade Spore Reproduction":
-                        currentInfection.upgradeAttr2();
-                        break;
-                    case "Upgrade Transmission Effectiveness":
-                    case "Upgrade Environmental Tolerance":
-                    case "Upgrade Survivability":
-                        currentInfection.upgradeAttr3();
-                        break;
-                }
+                    // Apply the selected upgrade based on the type and choice
+                    switch (selectedUpgrade) {
+                        case "Upgrade Mutation Rate":
+                        case "Upgrade Environmental Growth Rate":
+                        case "Upgrade Reproduction Rate":
+                            currentInfection.upgradeAttr1();
+                            break;
+                        case "Upgrade Host Dependency":
+                        case "Upgrade Resistance":
+                        case "Upgrade Spore Reproduction":
+                            currentInfection.upgradeAttr2();
+                            break;
+                        case "Upgrade Transmission Effectiveness":
+                        case "Upgrade Environmental Tolerance":
+                        case "Upgrade Survivability":
+                            currentInfection.upgradeAttr3();
+                            break;
+                    }
 
-            });
+                });
+            }
         });
 
         simulationThread.start(); // Start the simulation thread
     }
 
-    /**
-     * Updates the JLabel to reflect the current state of the game.
-     */
     private void updateStatus() {
         if (model.gameOver && !model.userWon) {
-            status.setText("You lost!");
+            status.setText("You lost! Your disease has been eradicated! Press reset to play again.");
         } else if (model.gameOver && model.userWon) {
-            status.setText("You won!");
+            status.setText("You won! Your disease has reached critical mass! Press reset to play again.");
         }
+        repaint();
     }
 
-    /**
-     * Draws the game board. If the game is over, printBoard is called. This
-     * printBoard method
-     * is not to be confused with the printBoard method which prints to the
-     * terminal.
-     * If the current cell is neither flagged nor is not clicked (i.e. the cell is
-     * opened
-     * and has a value associated with adjacent mines) a helper method is called to
-     * print.
-     *
-     * @param g Graphics to print to the GUI
-     */
 
     private void drawCity(Graphics2D g, CityNode city) {
         Point screenCoords = mapCoordinatesToScreen(city.latitude, city.longitude);
@@ -372,71 +347,15 @@ public class PlagueGame extends JPanel {
         }
     }
 
-    /**
-     * Draws the current cell to the GUI. Uses an algorithm to color-code the
-     * different
-     * adjacent mines values. Draws the string in approximately the center of the
-     * cell
-     *
-     * @param g Graphics to print to the GUI
-     * @param i x value of cell
-     * @param j y value of cell
-     */
-//    private void helpPrintBoard(Graphics g, int i, int j) {
-//        int numMines = ms[i][j].getMineNumber();
-//        if (m.getStatus() == 2) {
-//            g.setColor(Color.RED);
-//        } else if (m.getStatus() == 1) {
-//            g.setColor(new Color(51, 153, 255));
-//        } else {
-//            if (numMines == 0) {
-//                g.setColor(new Color(51, 153, 255));
-//            } else if (numMines == 1) {
-//                g.setColor(new Color(0, 152, 51));
-//            } else if (numMines == 2) {
-//                g.setColor(new Color(76, 0, 153));
-//            } else if (numMines == 3) {
-//                g.setColor(new Color(0, 0, 204));
-//            } else if (numMines == 4) {
-//                g.setColor(new Color(204, 102, 0));
-//            } else if (numMines == 5) {
-//                g.setColor(Color.BLACK);
-//            } else if (numMines == 6) {
-//                g.setColor(Color.CYAN);
-//            } else {
-//                g.setColor(Color.RED);
-//            }
-//        }
-//        g.drawString("" + numMines, i * 50 + 20, j * 50 + 30);
-//        g.setColor(Color.BLACK);
-//    }
+    public boolean isGameOver() {
+        return model.gameOver;
+    }
 
-    /**
-     * Prints the entire gameBoard to the GUI screen with true values displayed.
-     * This method is
-     * executed when the game is over.
-     *
-     * @param g    Graphics to print to the GUI
-     * @param game contains the GameBoard
-     */
-//    public void printBoard(Cell[][] game, Graphics g) {
-//        for (int i = 0; i < 10; i++) {
-//            for (int j = 0; j < 10; j++) {
-//                if (game[i][j].getIsMine()) {
-//                    g.setColor(Color.RED);
-//                    g.drawOval(i * 50 + 20, j * 50 + 20, 15, 15);
-//                    g.fillOval(i * 50 + 20, j * 50 + 20, 15, 15);
-//                    g.setColor(Color.BLACK);
-//                } else {
-//                    helpPrintBoard(g, i, j);
-//                }
-//            }
-//        }
-//    }
+    public String getStats() {
+        return model.infection.getStats();
+    }
 
-    /**
-     * Returns the size of the game board.
-     */
+
     @Override
     public Dimension getPreferredSize() {
         return new Dimension(BOARD_WIDTH, BOARD_HEIGHT);

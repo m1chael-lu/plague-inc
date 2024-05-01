@@ -84,33 +84,6 @@ public class Plague implements Runnable {
 
         // Game board
         final PlagueGame simulator = new PlagueGame(status);
-        simulator.addMouseListener(new MouseListener() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                // Print the x, y coordinates of the mouse click
-                System.out.println("Mouse clicked at: (" + e.getX() + ", " + e.getY() + ")");
-            }
-
-            @Override
-            public void mousePressed(MouseEvent e) {
-                // Not used in this example
-            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                // Not used in this example
-            }
-
-            @Override
-            public void mouseEntered(MouseEvent e) {
-                // Not used in this example
-            }
-
-            @Override
-            public void mouseExited(MouseEvent e) {
-                // Not used in this example
-            }
-        });
 
         frame.add(simulator);
         // Reset button
@@ -134,14 +107,15 @@ public class Plague implements Runnable {
         simulateYear.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                simulator.simulateYear();
+                if (!simulator.isGameOver()) {
+                    simulator.simulateYear();
+                }
             }
         });
         control_panel.add(simulateYear);
 
         // instructionsButton creation and inclusion in the control panel
         final JButton instructionsButton = new JButton("Instructions");
-
         instructionsButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -151,7 +125,32 @@ public class Plague implements Runnable {
         });
         control_panel.add(instructionsButton);
 
-        // Put the frame on the screen
+        final JButton statsDescription = new JButton("Infection Stats");
+        JFrame statsFrame = new JFrame("Infection Stats");
+        statsFrame.setSize(400, 200);
+        statsFrame.setLocation(550, 200);
+
+        JTextArea textAreaStats = new JTextArea();
+        textAreaStats.setEditable(false);
+        textAreaStats.setLineWrap(true);
+        textAreaStats.setWrapStyleWord(true);
+
+        JScrollPane scrollPaneStats = new JScrollPane(textAreaStats);
+
+        statsFrame.add(scrollPaneStats);
+
+        statsDescription.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                String stats = simulator.getStats();
+                textAreaStats.setText(stats);
+                statsFrame.setVisible(!statsFrame.isVisible());
+                return;
+            }
+        });
+
+        control_panel.add(statsDescription);
+
         frame.pack();
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.setVisible(false);

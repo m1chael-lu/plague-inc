@@ -36,13 +36,13 @@ public class Fungus extends Infection {
     public String attackAttr(int attribute) {
         String toReturn = "Medicine has been upgraded. Your fungus's ";
         if (attribute == 1) {
-            environmentalGrowthRate *= 0.9;
+            environmentalGrowthRate *= 0.95;
             toReturn += "environmental growth rate";
         } else if (attribute == 2) {
-            sporeReproduction *= 0.9;
+            sporeReproduction *= 0.95;
             toReturn += "spore reproduction";
         } else {
-            survivability *= 0.9;
+            survivability *= 0.95;
             toReturn += "survivability";
         }
         toReturn += " has decreased by a factor of 0.9";
@@ -52,10 +52,19 @@ public class Fungus extends Infection {
     private void recalculate() {
         double susceptibilityRate = survivability / 3.0;
         double infectionRate = environmentalGrowthRate * 0.3 + (sporeReproduction * 0.45);
-        double fatalityRate = ((environmentalGrowthRate + sporeReproduction) / 2.0) * 0.5;
+        double fatalityRate = ((environmentalGrowthRate + sporeReproduction) / 3.0) * 0.5;
 
         setFatalityRate(fatalityRate);
         setInfectionRate(infectionRate);
         setSusceptibilityRate(susceptibilityRate);
+    }
+
+    @Override
+    public String getStats() {
+        String toReturn = "Your infection is a fungus. Here are its stats:\n";
+        toReturn += "   Environmental growth rate: " + String.format("%.4f", environmentalGrowthRate);
+        toReturn += "\n   Spore reduction: " + String.format("%.4f", sporeReproduction);
+        toReturn += "\n   Survivability: " + String.format("%.4f", survivability);
+        return toReturn;
     }
 }

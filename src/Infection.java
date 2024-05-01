@@ -48,4 +48,8 @@ public abstract class Infection {
 
     public void upgradeAttr3() { }
 
+    public String attackAttr(int attribute) {
+        return "";
+    }
+
 }

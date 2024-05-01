@@ -11,6 +11,7 @@ class Modeling {
     int totalMedicinalUpgrades = 0;
     boolean gameOver = false;
     boolean userWon = false;
+    String medicineUpdate;
 
     public static int baseSocialInteractions = 12; // daily rate
     public static double populationGrowthRate = 0.0073; // monthlyRate
@@ -37,6 +38,7 @@ class Modeling {
         totalInfectedMonth = 0;
         totalKilledMonth = 0;
         totalRecoveredMonth = 0;
+        medicineUpdate = "";
     }
 
 
@@ -68,7 +70,10 @@ class Modeling {
         for (CityNode city : infectedCities) {
             System.out.println("- " + city.cityName);
         }
-        boolean outcome = evaluateWinOrLoss();
+        boolean outcome = false;
+        if (monthCount % 12 == 0 && monthCount > 24) {
+            outcome = evaluateWinOrLoss();
+        }
         medicinalUpgrade();
         if (monthCount % 12 == 0) {
             System.out.println("Time to upgrade: Select which upgrade you want:");
@@ -86,6 +91,7 @@ class Modeling {
         city.currentlyInfected -= (totalKilled + totalRecovered);
         city.totalRecovered += totalRecovered;
         city.population -= totalKilled;
+        city.totalKilled += totalKilled;
         totalKilledMonth += totalKilled;
         totalRecoveredMonth += totalRecovered;
         System.out.println(city.cityName + ": From month " + (monthCount - 1) + ": " + totalKilled + " killed " + totalRecovered + " recovered");
@@ -125,6 +131,8 @@ class Modeling {
                 double probabilityOfTraversal = Math.random() * probabilityOfFlight + Math.random() * probabilityOfLand;
                 if (probabilityOfTraversal > 1.0) {
                     newlyInfectedCities.add(edge.getEnd());
+                    CityNode target = edge.getEnd();
+                    target.currentlyInfected += 1;
                 }
             }
         }
@@ -136,7 +144,7 @@ class Modeling {
             System.out.println("Game over. You lost");
             gameOver = true;
         }
-        if ((int)(totalRecoveredMonth * 0.1) > totalInfectedMonth + totalKilledMonth) {
+        if (((int)(totalRecoveredMonth * 0.1) > totalInfectedMonth + totalKilledMonth) || (totalInfectedMonth < 2000)) {
             System.out.println("Game over. You lost");
             gameOver = true;
         }
@@ -163,14 +171,34 @@ class Modeling {
         totalMedicinalUpgrades += 1;
 
         int optionToAttack = (int)(Math.random() * 3);
+        medicineUpdate += infection.attackAttr(optionToAttack) + "\n";
         System.out.println("Medicinal upgrade option: " + optionToAttack);
-        if (optionToAttack == 1) {
-            infection.setSusceptibilityRate(infection.getSusceptibilityRate() * 0.9);
-        } else if (optionToAttack == 2) {
-            infection.setInfectionRate(infection.getInfectionRate() * 0.9);
-        } else {
-            infection.setFatalityRate(infection.getFatalityRate() * 0.9);
+    }
+
+    public Infection getInfection() {
+        return infection;
+    }
+
+    public String provideUpdate() {
+        String update = "Congratulations! You survived a year. Here is an update!\n";
+        if (!medicineUpdate.equals("")) {
+            update += "Important!!!!\n";
+            update += medicineUpdate;
         }
+        update += "\n Your disease, " + infection.getInfectionName() + ", has infected " + infectedCities.size();
+        if (infectedCities.size() == 1) {
+            update += " city:\n";
+        } else {
+            update += " cities:\n";
+        }
+        for (CityNode infected : infectedCities) {
+            update += infected.getName() + ":\n    " + infected.currentlyInfected + " people currently infected";
+            update += "\n    " + infected.totalRecovered + " total people recovered";
+            update += "\n    " + infected.totalKilled + " total people killed";
+            update += "\n    " + (infected.population - infected.currentlyInfected) + " remaining safe people.\n";
+        }
+        medicineUpdate = "";
+        return update;
     }
 
 }

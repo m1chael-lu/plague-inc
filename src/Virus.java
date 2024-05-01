@@ -35,6 +35,23 @@ public class Virus extends Infection {
         recalculate();
     }
 
+    @Override
+    public String attackAttr(int attribute) {
+        String toReturn = "Medicine has been upgraded. Your virus's ";
+        if (attribute == 1) {
+            mutationRate *= 0.9;
+            toReturn += "mutation rate";
+        } else if (attribute == 2) {
+            hostDependencyFactor *= 0.9;
+            toReturn += "host dependency factor";
+        } else {
+            transmissionEffectiveness *= 0.9;
+            toReturn += "transmission effectiveness";
+        }
+        toReturn += " has decreased by a factor of 0.9";
+        return toReturn;
+    }
+
     private void recalculate() {
         double susceptibilityRate = hostDependencyFactor * 0.6;
         double infectionRate = transmissionEffectiveness * mutationRate * 3;

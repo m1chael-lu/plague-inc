@@ -15,6 +15,7 @@ public class CityNode {
     int currentlyInfected;
     int totalRecovered;
     double percentRecovered;
+    int totalKilled;
 
     // static parameters for the city model
     static double populationTransmissionFactor = 0.0000075;
@@ -64,5 +65,9 @@ public class CityNode {
                 Math.exp(-(populationTransmissionFactor * population * percentInfected
                         + densityTransmissionFactor * populationDensity
                         - areaTransmissionFactor * landArea)));
+    }
+
+    public String getName() {
+        return cityName;
     }
 }

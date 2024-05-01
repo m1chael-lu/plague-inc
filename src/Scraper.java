@@ -55,9 +55,6 @@ public class Scraper {
                 String landAreaString = rowContents.get(5).text().
                         replaceAll(",", "").replaceAll(" ","");
                 double landArea = Double.parseDouble(landAreaString);
-                String populationDensityString = rowContents.get(7).text().
-                        replaceAll(",", "").replaceAll(" ","");
-                double populationDensity = Double.parseDouble(populationDensityString);
                 String[] coordinatesSplit = rowContents.get(9).text().split(" / ");
                 String correctCoordinates = coordinatesSplit[1];
                 String[] correctCoordinatesSplit = correctCoordinates.split(" ");
@@ -69,8 +66,7 @@ public class Scraper {
                 longitudeString = longitudeString.substring(0, 2) + "." + longitudeString.substring(2);
                 double latitude = Double.parseDouble(latitudeString);
                 double longitude = Double.parseDouble(longitudeString);
-                CityNode currCity = new CityNode(cityName, population, landArea, populationDensity,
-                        latitude, longitude);
+                CityNode currCity = new CityNode(cityName, population, landArea, latitude, longitude);
                 allCities.add(currCity);
             }
         } catch (IOException e) {

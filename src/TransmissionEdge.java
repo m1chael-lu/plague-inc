@@ -8,15 +8,17 @@ public class TransmissionEdge {
     double distanceBetweenCities; // units in miles
 
     static final double EARTH_RADIUS = 3956.0;
-    static double flightPopulationInfectedConstant = 0.00000075;
-    static double proximityFactorConstant = 50;
+    static double flightPopulationInfectedConstant = 0.000000075;
+    static double proximityFactorConstant = 0.25;
     static double landPopulationInfectedConstant = flightPopulationInfectedConstant;
 
     public TransmissionEdge(CityNode start, CityNode end) {
         distanceBetweenCities = haversineDistance(start.latitude, start.longitude,
                 end.latitude, end.longitude);
+        this.start = start;
+        this.end = end;
 
-        recalculate(start, end);
+        recalculate();
     }
 
     public static double haversineDistance(double lat1, double lon1, double lat2, double lon2) {
@@ -33,7 +35,7 @@ public class TransmissionEdge {
         return EARTH_RADIUS * c;
     }
 
-    public void recalculate(CityNode start, CityNode end) {
+    public void recalculate() {
         double startProximityConstant = start.proximityTransmissionConstant;
         double endProximityConstant = end.proximityTransmissionConstant;
 
@@ -52,23 +54,30 @@ public class TransmissionEdge {
                 flightPopulationInfectedConstant * (startInfectedPercent * startPopulation +
                         endInfectedPercent * endPopulation)
                         + proximityFactorConstant * (startProximityConstant + endProximityConstant) *
-                        (1.0 / (Math.pow(distanceBetweenCities, (0.6))) * flightAdjustment
+                        (1.0 / (Math.pow(distanceBetweenCities, (0.5))) * flightAdjustment
                         ))));
 
         landTransmissionConstant = 1.0 / (1.0 + Math.exp(-(
                 landPopulationInfectedConstant * (startInfectedPercent * startPopulation +
                         endInfectedPercent * endPopulation)
                         + proximityFactorConstant * (startProximityConstant + endProximityConstant) *
-                        (1.0 / (Math.pow(distanceBetweenCities, (0.75)))
+                        (1.0 / (Math.pow(distanceBetweenCities, (0.6)))
                         ))));
     }
 
-    CityNode getStart() {
+    public CityNode getStart() {
         return start;
     }
 
-    CityNode getEnd() {
+    public CityNode getEnd() {
         return end;
     }
 
+    public double getFlightTransmissionConstant() {
+        return flightTransmissionConstant;
+    }
+
+    public double getLandTransmissionConstant() {
+        return landTransmissionConstant;
+    }
 }

@@ -1,0 +1,8 @@
+plague NETS 1500 Final Project Summary
+
+- Michael Lu
+- Ashish Pothireddy
+
+Inspired by the popular infection simulation game Plague Inc., we created a simplified version of the game in Java. The game leverages scraping to collect each US city and various demographic factors that we use.
+We also use a graph to hold all of our CityNodes and their weighted connections. We use a BFS-like algorithm to simulate the infection over time. We included customization, to customize the name, infection type (virus, bacteria, etc.), and the starting city.
+The core of our project is the math modeling that determines how and when an infection spreads as well as the evolution chain. In addition, we include a visualization that's similar to that of the real game to show how the infection spreads over time. This summary is a brief synopsis of our project, but you can read into the various features, modeling, andn implementations in the README file.
